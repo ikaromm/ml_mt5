@@ -19,15 +19,15 @@
 This project is an **Automated Trading Bot** developed in Python that integrates with **MetaTrader 5 (MT5)** to perform live trading operations based on machine learning predictions. The bot utilizes technical indicators and a **Random Forest** classifier to predict buy or sell signals for the **BTCUSDT** cryptocurrency pair on a 15-minute timeframe. This project serves as a personal learning tool to understand the integration of machine learning with trading platforms.
 
 
-[📄 Strategy Tester Report](img\ReportTester-9523931.html)
+[📄 Strategy Tester Report](img/ReportTester-9523931.html)
 
 
 ## Images
 
-![Texto Alternativo](img\mt5.png)
-![Texto Alternativo](img\ReportTester-9523931-holding.png)
-![Texto Alternativo](img\ReportTester-9523931-hst.png)
-![Texto Alternativo](img\ReportTester-9523931.png)
+![](img/mt5.png)
+![](img/ReportTester-9523931-holding.png)
+![](img/ReportTester-9523931-hst.png)
+![](img/ReportTester-9523931.png)
 
 
 
