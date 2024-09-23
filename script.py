@@ -5,14 +5,13 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
 import MetaTrader5 as mt5
-
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, roc_auc_score, precision_recall_curve
-
 from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import TimeSeriesSplit
 
 # %% [markdown]
 # # Download candles
@@ -68,6 +67,21 @@ def BollingerBands(df, n=20, k=2):
     lower_band = sma - (k * std)
     return upper_band, lower_band
 
+def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
+    df['fast_ema'] = df['close'].ewm(span=fast_period, adjust=False).mean()
+    df['slow_ema'] = df['close'].ewm(span=slow_period, adjust=False).mean()
+    df['macd'] = df['fast_ema'] - df['slow_ema']
+    df['macd_signal'] = df['macd'].ewm(span=signal_period, adjust=False).mean()
+    return df
+
+def calculate_atr(df, period=14):
+    df['high-low'] = df['high'] - df['low']
+    df['high-close'] = abs(df['high'] - df['close'].shift())
+    df['low-close'] = abs(df['low'] - df['close'].shift())
+    df['true_range'] = df[['high-low', 'high-close', 'low-close']].max(axis=1)
+    df['atr'] = df['true_range'].rolling(window=period).mean()
+    return df
+
 # %% [markdown]
 # # Organizing data
 
@@ -109,32 +123,6 @@ data.label.value_counts()
 # # Randon Forest
 
 # %%
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import TimeSeriesSplit, GridSearchCV
-from sklearn.metrics import accuracy_score, classification_report
-from imblearn.over_sampling import SMOTE
-from sklearn.model_selection import train_test_split
-# import talib  # Biblioteca para calcular indicadores técnicos
-
-
-def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
-    df['fast_ema'] = df['close'].ewm(span=fast_period, adjust=False).mean()
-    df['slow_ema'] = df['close'].ewm(span=slow_period, adjust=False).mean()
-    df['macd'] = df['fast_ema'] - df['slow_ema']
-    df['macd_signal'] = df['macd'].ewm(span=signal_period, adjust=False).mean()
-    return df
-
-def calculate_atr(df, period=14):
-    df['high-low'] = df['high'] - df['low']
-    df['high-close'] = abs(df['high'] - df['close'].shift())
-    df['low-close'] = abs(df['low'] - df['close'].shift())
-    df['true_range'] = df[['high-low', 'high-close', 'low-close']].max(axis=1)
-    df['atr'] = df['true_range'].rolling(window=period).mean()
-    return df
-
-
 data = calculate_macd(data)
 data = calculate_atr(data)
 
@@ -191,29 +179,6 @@ print(f"Melhor conjunto de parâmetros após GridSearchCV: {grid_search.best_par
 
 
 # %%
-import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import TimeSeriesSplit
-from sklearn.metrics import accuracy_score, classification_report
-from imblearn.over_sampling import SMOTE
-
-# Funções para calcular MACD e ATR
-def calculate_macd(df, fast_period=12, slow_period=26, signal_period=9):
-    df['fast_ema'] = df['close'].ewm(span=fast_period, adjust=False).mean()
-    df['slow_ema'] = df['close'].ewm(span=slow_period, adjust=False).mean()
-    df['macd'] = df['fast_ema'] - df['slow_ema']
-    df['macd_signal'] = df['macd'].ewm(span=signal_period, adjust=False).mean()
-    return df
-
-def calculate_atr(df, period=14):
-    df['high-low'] = df['high'] - df['low']
-    df['high-close'] = abs(df['high'] - df['close'].shift())
-    df['low-close'] = abs(df['low'] - df['close'].shift())
-    df['true_range'] = df[['high-low', 'high-close', 'low-close']].max(axis=1)
-    df['atr'] = df['true_range'].rolling(window=period).mean()
-    return df
-
 # Aplicar os indicadores técnicos
 data = calculate_macd(data)
 data = calculate_atr(data)
@@ -229,13 +194,16 @@ y.dropna(inplace=True)
 tscv = TimeSeriesSplit(n_splits=5)
 
 # Aplicar o melhor conjunto de parâmetros diretamente ao modelo
-best_params = {
-    'max_depth': 15,
-    'max_features': 'sqrt',
-    'min_samples_leaf': 4,
-    'min_samples_split': 2,
-    'n_estimators': 100
-}
+
+# best_params = {
+#     'max_depth': 15,
+#     'max_features': 'sqrt',
+#     'min_samples_leaf': 4,
+#     'min_samples_split': 2,
+#     'n_estimators': 100
+# }
+
+best_params = grid_search.best_params_
 
 # RandomForestClassifier com os melhores hiperparâmetros
 model = RandomForestClassifier(
@@ -270,22 +238,6 @@ for train_index, test_index in tscv.split(X):
 
 
 # %%
-import matplotlib.pyplot as plt
-
-# Obter a importância das features
-feature_importances = grid_search.best_estimator_.feature_importances_
-features = X.columns
-
-# Plotar a importância das features
-plt.figure(figsize=(10, 6))
-plt.barh(features, feature_importances)
-plt.xlabel('Importância')
-plt.title('Importância das Features')
-plt.show()
-
-
-# %%
-
 # Avaliar o desempenho do modelo
 accuracy = accuracy_score(y_test, y_pred)
 print(f"Acurácia do modelo: {accuracy:.2f}")
@@ -293,11 +245,6 @@ print(f"Acurácia do modelo: {accuracy:.2f}")
 # Mostrar métricas adicionais
 print(confusion_matrix(y_test, y_pred))
 print(classification_report(y_test, y_pred))
-
-# Validação cruzada com 5 dobras
-cv_scores = cross_val_score(model, X, y, cv=5)
-print(f"Acurácias nas 5 dobras: {cv_scores}")
-print(f"Acurácia média na validação cruzada: {np.mean(cv_scores):.2f}")
 
 # Calcular AUC-ROC
 y_pred_proba = model.predict_proba(X_test)[:, 1]
