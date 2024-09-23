@@ -35,9 +35,6 @@ data['time'] = pd.to_datetime(data['time'], unit='s')
 mt5.shutdown()
 
 
-# %%
-display(data)
-
 # %% [markdown]
 # # Funcs
 
