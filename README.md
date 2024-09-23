@@ -2,8 +2,6 @@
 
 # Automated Trading Bot with Python and MetaTrader 5
 
-![Project Banner](https://github.com/yourusername/automated-trading-bot/blob/main/banner.png)
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -15,14 +13,23 @@
   - [Training the Model](#training-the-model)
   - [Running the Trading Bot](#running-the-trading-bot)
 - [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
-- [Authors](#authors)
-- [Contact](#contact)
 
 ## Overview
 
 This project is an **Automated Trading Bot** developed in Python that integrates with **MetaTrader 5 (MT5)** to perform live trading operations based on machine learning predictions. The bot utilizes technical indicators and a **Random Forest** classifier to predict buy or sell signals for the **BTCUSDT** cryptocurrency pair on a 15-minute timeframe. This project serves as a personal learning tool to understand the integration of machine learning with trading platforms.
+
+
+[📄 Strategy Tester Report](img\ReportTester-9523931.html)
+
+
+## Images
+
+![Texto Alternativo](img\mt5.png)
+![Texto Alternativo](img\ReportTester-9523931-holding.png)
+![Texto Alternativo](img\ReportTester-9523931-hst.png)
+![Texto Alternativo](img\ReportTester-9523931.png)
+
+
 
 ## Features
 
@@ -59,8 +66,8 @@ Before you begin, ensure you have met the following requirements:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/automated-trading-bot.git
-cd automated-trading-bot
+git clone https://github.com/ikaromm/ml_mt5.git
+cd ml_mt5
 ```
 
 ### 2. Create a Virtual Environment (Optional but Recommended)
@@ -145,8 +152,6 @@ automated-trading-bot/
 └── LICENSE               # Project license
 
 ```
-
-
 
 Contributing
 
